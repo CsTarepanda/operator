@@ -16,7 +16,10 @@ def div(*args):
 
 @rename("+")
 def plus(*args):
-    return sum(args)
+    result = args[0]
+    for i in args[1:]:
+        result += i
+    return result
 
 
 @rename("-")
@@ -162,20 +165,8 @@ def gt(left, right):
 
 @rename("|>")
 def into(left, right):
-    return globals()[right](left)
-
-@rename("$>")
-def outof(left, right):
-    return left(right)
-
-@rename("@")
-def tofunc(left, right):
-    return globals()[right]
+    return right(left)
 
 @rename(".")
 def dot(left, right):
     return getattr(globals()[left], right)
-
-@rename("?")
-def if_else(left, true_case, false_case):
-    return true_case if left else false_case

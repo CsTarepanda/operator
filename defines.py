@@ -7,7 +7,6 @@ def rename(name):
         globals()[name] = fnc
         return fnc
     return deco
-    # return renamer
 
 
 def special(fnc):
