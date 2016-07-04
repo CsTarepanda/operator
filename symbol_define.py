@@ -170,3 +170,21 @@ def into(left, right):
 @rename(".")
 def dot(left, right):
     return getattr(globals()[left], right)
+
+@rename("[I]")
+def index(left, right):
+    return left[right]
+
+def v(left, right):
+    assert left == right
+    return left
+
+@rename("!!")
+def ret(left):
+    return left
+
+@rename("-*|")
+def ast_to_value(left):
+    def val(value):
+        return eval(value, left)
+    return val

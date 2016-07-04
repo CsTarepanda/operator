@@ -69,7 +69,7 @@ end_literals = {
 
 
 def split_code_sub(code):
-    return re.split(" +", code.strip())
+    return re.split("[\n ]+", code.strip())
 
 
 def split_code(code):
@@ -78,16 +78,30 @@ def split_code(code):
     escape_flg = False
     spl = []
     literal_value = ""
+    nest_count = 1
+    nest_flg = False
+    target_literal = ""
     for index, i in enumerate(code):
-        if (i in literals if literal == None else i == end_literals[literal]) and not escape_flg:
+        if nest_flg:
+            if i == target_literal:
+                nest_count += 1
+            elif i == end_literals[literal]:
+                nest_count -= 1
+
+        if (i in literals if literal == None else i == end_literals[literal]) and not escape_flg and (nest_count == 0 or not nest_flg):
             if literal == None:
                 literal = literals[i]
+                if i != end_literals[literal]:
+                    target_literal = i
+                    nest_flg = True
                 if code[now:index]: spl += split_code_sub(code[now:index])
             else:
                 spl.append(literal(literal_value))
                 now = index + 1
                 literal = None
                 literal_value = ""
+                nest_flg = False
+                nest_count = 1
         elif literal != None:
             literal_value += i
 
@@ -145,4 +159,35 @@ def eval(first_value, operator_ast):
         return value
     return eval(value, operator_ast[2])
 
-print("\n=> %s" % eval(*parse(input(">> "))))
+# eval(*parse('''#(## |> print) => x'''))
+# eval(*parse('''#10 -> x'''))
+a = [True, False, True]
+print(eval(*parse('''
+    # (# "test ( kakiku ) kona" |> print) |> print
+    ''')))
+# print(eval(*parse('''
+#     #5
+#     |> range
+#     |> tuple
+#     |> (#(## [I] 3) |> -*|)
+#     |> print
+#     v
+#
+#     None
+#
+#     == None ?
+#     (#"result is None" |> !!) ,
+#     (# "result isn't None" |> !!)
+#
+#     |> print
+#
+#     ''')))
+'''
+def ?.?(f, *a):
+    return *a -m> (##% f) |> any ? "true" , "false"
+5 ?.? 10 , 5
+
+ => True
+'''
+# eval(''' #x <- (## |> print)''')
+# print("\n=> %s" % eval(*parse(input(">> "))))
